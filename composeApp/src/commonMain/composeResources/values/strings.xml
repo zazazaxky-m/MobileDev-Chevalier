@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Kashier</string>
+    <string name="searchbar_hint">Cari barang...</string>
+    <string name="save_button_label">Simpan</string>
+</resources>
