@@ -56,6 +56,9 @@ fun SelectedItemChip(
 @Composable
 fun SelectedItemChipPreview() {
     Surface {
-        SelectedItemChipPreview()
+        SelectedItemChip(
+            text = "Telur 0.5 KG",
+            onRemove = { }
+        )
     }
 }

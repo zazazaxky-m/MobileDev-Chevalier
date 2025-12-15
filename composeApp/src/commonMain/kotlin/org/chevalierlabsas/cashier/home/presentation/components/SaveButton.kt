@@ -31,3 +31,11 @@ fun SaveButton(
         Text(stringResource(Res.string.save_button_label))
     }
 }
+
+@Preview
+@Composable
+fun SaveButtonPreview() {
+    Surface {
+        SaveButton(onSave = { })
+    }
+}
