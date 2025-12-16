@@ -2,4 +2,6 @@
     <string name="app_name">Kashier</string>
     <string name="searchbar_hint">Cari barang...</string>
     <string name="save_button_label">Simpan</string>
+    <string name="total_price_label">Total Harga</string>
+    <string name="add_item_fab_label">Buat Barang</string>
 </resources>

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -22,35 +23,36 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun SectionHeader(
-    text: String,
-    onToggle: () -> Unit,
+    title: String,
+    visible: Boolean,
+    onAction: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onToggle)
-            .padding(vertical = 12.dp, horizontal = 16.dp),
+            .clickable { onAction(!visible) }
+            .padding(vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = text,
+            text = title,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Medium,
                 fontSize = 16.sp
             ),
             color = MaterialTheme.colorScheme.onSurface
         )
-        
+
         HorizontalDivider(
             modifier = Modifier.weight(1f),
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
         )
-        
+
         Icon(
-            imageVector = Icons.Default.ArrowDropDown,
+            imageVector = if (visible) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
             contentDescription = "Toggle",
             tint = MaterialTheme.colorScheme.onSurface
         )
@@ -62,8 +64,9 @@ fun SectionHeader(
 fun SectionHeaderPreview() {
     Surface {
         SectionHeader(
-            text = "Semua barang",
-            onToggle = { }
+            title = "Semua barang",
+            visible = false,
+            onAction = { }
         )
     }
 }
