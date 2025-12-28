@@ -147,13 +147,11 @@ fun HomeScreen() {
                     value = searchQuery,
                     onValueChange = { newValue ->
                         searchQuery = newValue
-                    },
-                    onSearch = {
-                        filteredItems = if (searchQuery.isEmpty()) {
+                        filteredItems = if (newValue.isEmpty()) {
                             allItems
                         } else {
                             allItems.filter { item ->
-                                item.name.contains(searchQuery, ignoreCase = true)
+                                item.name.contains(newValue, ignoreCase = true)
                             }
                         }
                     }
