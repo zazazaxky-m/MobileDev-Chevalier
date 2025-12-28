@@ -35,6 +35,7 @@ import org.chevalierlabsas.cashier.home.data.DummyDataSource
 import org.chevalierlabsas.cashier.home.domain.Item
 import org.chevalierlabsas.cashier.home.presentation.components.ItemCard
 import org.chevalierlabsas.cashier.home.presentation.components.SaveButton
+import org.chevalierlabsas.cashier.home.presentation.components.Searchbar
 import org.chevalierlabsas.cashier.home.presentation.components.SectionHeader
 import org.chevalierlabsas.cashier.home.presentation.components.SelectedItemChip
 import org.chevalierlabsas.cashier.home.presentation.components.TotalPriceHeader
@@ -45,10 +46,15 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun HomeScreen() {
 
+    val allItems = DummyDataSource().getData()
     var totalPrice by remember { mutableStateOf(0.00) }
     val selectedItems = remember { mutableStateListOf<Item>() }
     var showSelectedItem by remember { mutableStateOf(true) }
     var showAllItem by remember { mutableStateOf(true) }
+    
+    // State untuk Search Bar
+    var searchQuery by remember { mutableStateOf("") }
+    var filteredItems by remember { mutableStateOf(allItems) }
 
     Scaffold(
         topBar = {
@@ -133,7 +139,28 @@ fun HomeScreen() {
                 )
             }
 
-            items(DummyDataSource().getData()){ item ->
+            item {
+                Searchbar(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    value = searchQuery,
+                    onValueChange = { newValue ->
+                        searchQuery = newValue
+                    },
+                    onSearch = {
+                        filteredItems = if (searchQuery.isEmpty()) {
+                            allItems
+                        } else {
+                            allItems.filter { item ->
+                                item.name.contains(searchQuery, ignoreCase = true)
+                            }
+                        }
+                    }
+                )
+            }
+
+            items(filteredItems) { item ->
                 AnimatedVisibility(
                     visible = showAllItem,
                     enter = fadeIn(),
