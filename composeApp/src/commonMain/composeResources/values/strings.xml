@@ -4,4 +4,6 @@
     <string name="save_button_label">Simpan</string>
     <string name="total_price_label">Total Harga</string>
     <string name="add_item_fab_label">Buat Barang</string>
+    <string name="history_topbar">Riwayat Transaksi</string>
+    <string name="navigate_back">Kembali</string>
 </resources>

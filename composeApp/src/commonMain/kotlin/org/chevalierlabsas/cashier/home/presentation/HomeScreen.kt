@@ -13,6 +13,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -31,6 +33,8 @@ import androidx.compose.ui.unit.dp
 import cashier.composeapp.generated.resources.Res
 import cashier.composeapp.generated.resources.add_item_fab_label
 import cashier.composeapp.generated.resources.app_name
+import cashier.composeapp.generated.resources.history_topbar
+import org.chevalierlabsas.cashier.core.navigation.HistoryDestination
 import org.chevalierlabsas.cashier.home.data.DummyDataSource
 import org.chevalierlabsas.cashier.home.domain.Item
 import org.chevalierlabsas.cashier.home.presentation.components.ItemCard
@@ -47,6 +51,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun HomeScreen(
     state: HomeState,
     onEvent: (HomeEvent) -> Unit,
+    onNavigate: (Any) -> Unit,
 ) {
 
     Scaffold(
@@ -54,6 +59,16 @@ fun HomeScreen(
             TopAppBar(
                 title = {
                     Text(text = stringResource(Res.string.app_name))
+                },
+                actions = {
+                    IconButton(
+                        onClick = { onNavigate(HistoryDestination) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.History,
+                            contentDescription = stringResource(Res.string.history_topbar)
+                        )
+                    }
                 }
             )
         },
@@ -169,6 +184,7 @@ fun HomeScreen(
 fun HomeScreenPreview() {
     HomeScreen(
         state = HomeState(),
-        onEvent = {}
+        onEvent = {},
+        onNavigate = {}
     )
 }
