@@ -1,0 +1,69 @@
+package org.chevalierlabsas.cashier.history.presentation
+
+import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.datetime.*
+import org.chevalierlabsas.cashier.history.data.DummyDataSource
+import org.chevalierlabsas.cashier.history.domain.TransactionHistory
+
+class HistoryViewModel : ViewModel() {
+
+    private val dataSource = DummyDataSource()
+
+    private val _state = MutableStateFlow(HistoryState())
+    val state = _state.asStateFlow()
+
+    init {
+        loadTransactions()
+    }
+
+    private fun loadTransactions() {
+        val allTransactions = dataSource.getData()
+        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+
+        val todayList = mutableListOf<TransactionHistory>()
+        val weekList = mutableListOf<TransactionHistory>()
+        val monthList = mutableListOf<TransactionHistory>()
+        val olderList = mutableListOf<TransactionHistory>()
+
+        val months = listOf(
+            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+        )
+
+        for (transaction in allTransactions) {
+            val transactionDate = parseDate(transaction.date, months)
+            if (transactionDate != null) {
+                val daysDiff = today.toEpochDays() - transactionDate.toEpochDays()
+                when {
+                    daysDiff == 0 -> todayList.add(transaction)
+                    daysDiff in 1..6 -> weekList.add(transaction)
+                    daysDiff in 7..29 -> monthList.add(transaction)
+                    else -> olderList.add(transaction)
+                }
+            } else {
+                olderList.add(transaction)
+            }
+        }
+
+        _state.value = HistoryState(
+            todayTransactions = todayList,
+            thisWeekTransactions = weekList,
+            thisMonthTransactions = monthList,
+            olderTransactions = olderList
+        )
+    }
+
+    private fun parseDate(dateStr: String, months: List<String>): LocalDate? {
+        return try {
+            val parts = dateStr.split(" ")
+            val day = parts[0].toInt()
+            val monthIndex = months.indexOf(parts[1]) + 1
+            val year = parts[2].toInt()
+            LocalDate(year, monthIndex, day)
+        } catch (e: Exception) {
+            null
+        }
+    }
+}

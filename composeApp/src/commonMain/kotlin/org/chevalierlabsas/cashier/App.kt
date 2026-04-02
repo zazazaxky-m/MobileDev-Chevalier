@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import org.chevalierlabsas.cashier.core.navigation.HomeDestination
 import org.chevalierlabsas.cashier.core.navigation.HistoryDestination
 import org.chevalierlabsas.cashier.history.presentation.HistoryScreen
+import org.chevalierlabsas.cashier.history.presentation.HistoryViewModel
 import org.chevalierlabsas.cashier.home.presentation.HomeScreen
 import org.chevalierlabsas.cashier.home.presentation.HomeViewModel
 
@@ -35,7 +36,10 @@ fun App() {
                 )
             }
             composable<HistoryDestination> {
+                val viewModel = viewModel<HistoryViewModel>()
+                val state by viewModel.state.collectAsStateWithLifecycle()
                 HistoryScreen(
+                    state = state,
                     onNavigateBack = { navController.navigateUp() }
                 )
             }
