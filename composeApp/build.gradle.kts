@@ -33,6 +33,8 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.koin.android)
+            implementation(libs.koin.androidx.compose)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -47,8 +49,11 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.navigation.compose)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.koin.compose.viewmodel)
+            api(libs.koin.core)
         }
         commonTest.dependencies {
+            implementation(libs.kotlin.test)
             implementation(libs.kotlin.test)
         }
         jvmMain.dependencies {

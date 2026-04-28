@@ -2,8 +2,12 @@ package org.chevalierlabsas.cashier.home.data
 
 import org.chevalierlabsas.cashier.home.domain.Item
 
-class DummyDataSource {
-    fun getData(): List<Item> = listOf(
+interface DummyDataSource {
+    fun getDatas(): List<Item>
+}
+
+class DummyDataSourceImpl : DummyDataSource {
+    override fun getDatas(): List<Item> = listOf(
         Item(
             id = 1,
             userId = 1,

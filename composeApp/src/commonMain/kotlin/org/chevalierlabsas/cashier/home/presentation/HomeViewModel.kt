@@ -3,13 +3,18 @@ package org.chevalierlabsas.cashier.home.presentation
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.chevalierlabsas.cashier.home.data.DummyDataSource
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
+import org.chevalierlabsas.cashier.home.domain.repository.HomeRepository
 import org.chevalierlabsas.cashier.home.domain.Item
 
-class HomeViewModel: ViewModel() {
-    private val _items = DummyDataSource().getData()
-    private val _state = MutableStateFlow(HomeState(items = _items))
+class HomeViewModel(
+    private val repository: HomeRepository
+): ViewModel() {
+    private var _items: List<Item> = emptyList()
+    private val _state = MutableStateFlow(HomeState())
     val state = _state.asStateFlow()
 
     fun onEvent(event: HomeEvent) {
@@ -21,6 +26,16 @@ class HomeViewModel: ViewModel() {
             is HomeEvent.OnSearchQueryChange -> TODO()
             HomeEvent.OnSearchQuerySubmit -> TODO()
             HomeEvent.OnSaveTransaction -> saveTransaction()
+            HomeEvent.OnLoadData -> loadData()
+        }
+    }
+
+    private fun loadData() {
+        viewModelScope.launch {
+            delay(2000) /* Simulate Network Call */
+            val data = repository.getItems()
+            _items = data
+            _state.update { it.copy(items = data) }
         }
     }
 

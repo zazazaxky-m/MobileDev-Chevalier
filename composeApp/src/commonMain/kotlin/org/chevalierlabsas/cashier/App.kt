@@ -5,7 +5,7 @@ import androidx.compose.runtime.*
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.compose.viewmodel.koinViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -27,7 +27,7 @@ fun App() {
             startDestination = HomeDestination
         ) {
             composable<HomeDestination> {
-                val viewModel = viewModel<HomeViewModel>()
+                val viewModel = koinViewModel<HomeViewModel>()
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 HomeScreen(
                     state = state,
@@ -36,7 +36,7 @@ fun App() {
                 )
             }
             composable<HistoryDestination> {
-                val viewModel = viewModel<HistoryViewModel>()
+                val viewModel = koinViewModel<HistoryViewModel>()
                 val state by viewModel.state.collectAsStateWithLifecycle()
                 HistoryScreen(
                     state = state,

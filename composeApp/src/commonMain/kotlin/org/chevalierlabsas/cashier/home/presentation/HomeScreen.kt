@@ -46,6 +46,8 @@ import org.chevalierlabsas.cashier.home.presentation.components.TotalPriceHeader
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
+import androidx.compose.runtime.LaunchedEffect
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -53,6 +55,12 @@ fun HomeScreen(
     onEvent: (HomeEvent) -> Unit,
     onNavigate: (Any) -> Unit,
 ) {
+
+    LaunchedEffect(state.items) {
+        if (state.items.isEmpty()) {
+            onEvent(HomeEvent.OnLoadData)
+        }
+    }
 
     Scaffold(
         topBar = {
