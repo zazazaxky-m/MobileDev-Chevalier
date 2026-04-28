@@ -4,12 +4,16 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.datetime.*
-import org.chevalierlabsas.cashier.history.data.DummyDataSource
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 import org.chevalierlabsas.cashier.history.domain.TransactionHistory
+import org.chevalierlabsas.cashier.history.domain.repository.HistoryRepository
 
-class HistoryViewModel : ViewModel() {
+import kotlin.time.Clock
 
-    private val dataSource = DummyDataSource()
+class HistoryViewModel(
+    private val repository: HistoryRepository
+) : ViewModel() {
 
     private val _state = MutableStateFlow(HistoryState())
     val state = _state.asStateFlow()
@@ -18,8 +22,10 @@ class HistoryViewModel : ViewModel() {
         loadTransactions()
     }
 
+    @OptIn(kotlin.time.ExperimentalTime::class)
     private fun loadTransactions() {
-        val allTransactions = dataSource.getData()
+        viewModelScope.launch {
+            val allTransactions = repository.getTransactions()
         val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 
         val todayList = mutableListOf<TransactionHistory>()
@@ -37,9 +43,9 @@ class HistoryViewModel : ViewModel() {
             if (transactionDate != null) {
                 val daysDiff = today.toEpochDays() - transactionDate.toEpochDays()
                 when {
-                    daysDiff == 0 -> todayList.add(transaction)
-                    daysDiff in 1..6 -> weekList.add(transaction)
-                    daysDiff in 7..29 -> monthList.add(transaction)
+                    daysDiff == 0L -> todayList.add(transaction)
+                    daysDiff in 1L..6L -> weekList.add(transaction)
+                    daysDiff in 7L..29L -> monthList.add(transaction)
                     else -> olderList.add(transaction)
                 }
             } else {
@@ -53,6 +59,7 @@ class HistoryViewModel : ViewModel() {
             thisMonthTransactions = monthList,
             olderTransactions = olderList
         )
+        }
     }
 
     private fun parseDate(dateStr: String, months: List<String>): LocalDate? {
@@ -62,7 +69,7 @@ class HistoryViewModel : ViewModel() {
             val monthIndex = months.indexOf(parts[1]) + 1
             val year = parts[2].toInt()
             LocalDate(year, monthIndex, day)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }

@@ -3,13 +3,19 @@ package org.chevalierlabsas.cashier.history.data
 import kotlinx.datetime.*
 import org.chevalierlabsas.cashier.history.domain.TransactionHistory
 
-class DummyDataSource {
+import kotlin.time.Clock
 
-    fun getData(): List<TransactionHistory> {
+interface DummyDataSource {
+    fun getData(): List<TransactionHistory>
+}
+
+class DummyDataSourceImpl : DummyDataSource {
+
+    @OptIn(kotlin.time.ExperimentalTime::class)
+    override fun getData(): List<TransactionHistory> {
         val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 
         val todayStr = formatDate(today)
-        val yesterdayStr = formatDate(today.minus(1, DateTimeUnit.DAY))
         val threeDaysAgoStr = formatDate(today.minus(3, DateTimeUnit.DAY))
         val fiveDaysAgoStr = formatDate(today.minus(5, DateTimeUnit.DAY))
         val tenDaysAgoStr = formatDate(today.minus(10, DateTimeUnit.DAY))
@@ -59,6 +65,7 @@ class DummyDataSource {
         )
     }
 
+    @Suppress("DEPRECATION")
     private fun formatDate(date: LocalDate): String {
         val months = listOf(
             "Januari", "Februari", "Maret", "April", "Mei", "Juni",
