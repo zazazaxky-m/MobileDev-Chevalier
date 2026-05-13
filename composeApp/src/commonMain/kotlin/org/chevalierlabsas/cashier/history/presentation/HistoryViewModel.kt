@@ -8,9 +8,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import org.chevalierlabsas.cashier.history.domain.TransactionHistory
 import org.chevalierlabsas.cashier.history.domain.repository.HistoryRepository
-
-import kotlin.time.Clock
-
 class HistoryViewModel(
     private val repository: HistoryRepository
 ) : ViewModel() {
@@ -22,7 +19,6 @@ class HistoryViewModel(
         loadTransactions()
     }
 
-    @OptIn(kotlin.time.ExperimentalTime::class)
     private fun loadTransactions() {
         viewModelScope.launch {
             val allTransactions = repository.getTransactions()
@@ -43,9 +39,9 @@ class HistoryViewModel(
             if (transactionDate != null) {
                 val daysDiff = today.toEpochDays() - transactionDate.toEpochDays()
                 when {
-                    daysDiff == 0L -> todayList.add(transaction)
-                    daysDiff in 1L..6L -> weekList.add(transaction)
-                    daysDiff in 7L..29L -> monthList.add(transaction)
+                    daysDiff == 0 -> todayList.add(transaction)
+                    daysDiff in 1..6 -> weekList.add(transaction)
+                    daysDiff in 7..29 -> monthList.add(transaction)
                     else -> olderList.add(transaction)
                 }
             } else {

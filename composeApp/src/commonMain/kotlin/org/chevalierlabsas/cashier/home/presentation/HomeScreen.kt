@@ -20,6 +20,8 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -27,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -47,22 +50,69 @@ import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import org.chevalierlabsas.cashier.home.presentation.components.ItemFormBottomSheet
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun HomeScreen(
     state: HomeState,
     onEvent: (HomeEvent) -> Unit,
     onNavigate: (Any) -> Unit,
 ) {
+    // Buat coroutineScope
+    val scope = rememberCoroutineScope()
+    // Snackbar untuk melihatkan hasil ID unik.
+    val snackbarHostState = remember { SnackbarHostState() }
+    var isAddItemSheetOpen by remember { mutableStateOf(false) }
+    var itemToEdit by remember { mutableStateOf<Item?>(null) }
 
-    LaunchedEffect(state.items) {
-        if (state.items.isEmpty()) {
-            onEvent(HomeEvent.OnLoadData)
+    if (isAddItemSheetOpen || itemToEdit != null) {
+        val isEditMode = itemToEdit != null
+        ItemFormBottomSheet(
+            title = if (isEditMode) "Edit Barang" else "Tambah Barang",
+            initialName = itemToEdit?.name ?: "",
+            initialPrice = if (isEditMode) itemToEdit?.price?.toInt()?.toString() ?: "" else "",
+            onDismissRequest = { 
+                isAddItemSheetOpen = false 
+                itemToEdit = null
+            },
+            onSave = { name, price ->
+                if (isEditMode) {
+                    onEvent(HomeEvent.OnUpdateItem(itemToEdit!!.id, name, price))
+                } else {
+                    onEvent(HomeEvent.OnPostItem(name, price))
+                }
+                isAddItemSheetOpen = false
+                itemToEdit = null
+            }
+        )
+    }
+
+    // Cek state username
+    LaunchedEffect(state.userName) {
+        delay(500) // Beri waktu Preferences untuk load value.
+        if (state.userName.isBlank()) {
+            // Jika kosong maka generate.
+            onEvent(HomeEvent.CreateUserName)
+        } else {
+            // Jika tidak, maka tampilkan di Snackbar
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = "Username telah dibuat: " + state.userName,
+                    withDismissAction = true
+                )
+            }
+            if (state.items.isEmpty()) {
+                onEvent(HomeEvent.OnLoadData)
+            }
         }
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -82,7 +132,7 @@ fun HomeScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { TODO("Add Item.") },
+                onClick = { isAddItemSheetOpen = true },
                 containerColor = MaterialTheme.colorScheme.tertiary,
                 text = { Text(text = stringResource(Res.string.add_item_fab_label)) },
                 icon = { Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.add_item_fab_label)) }
@@ -176,7 +226,7 @@ fun HomeScreen(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                         name = item.name,
                         price = item.price,
-                        onEdit = { },
+                        onEdit = { itemToEdit = item },
                         onAdd = {
                             onEvent(HomeEvent.OnAddItem(item))
                         }

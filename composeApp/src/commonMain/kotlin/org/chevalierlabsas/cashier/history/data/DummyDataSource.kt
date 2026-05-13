@@ -3,15 +3,12 @@ package org.chevalierlabsas.cashier.history.data
 import kotlinx.datetime.*
 import org.chevalierlabsas.cashier.history.domain.TransactionHistory
 
-import kotlin.time.Clock
-
 interface DummyDataSource {
     fun getData(): List<TransactionHistory>
 }
 
 class DummyDataSourceImpl : DummyDataSource {
 
-    @OptIn(kotlin.time.ExperimentalTime::class)
     override fun getData(): List<TransactionHistory> {
         val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 

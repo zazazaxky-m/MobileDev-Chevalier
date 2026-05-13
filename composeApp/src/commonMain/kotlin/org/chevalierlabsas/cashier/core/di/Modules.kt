@@ -15,16 +15,31 @@ import org.chevalierlabsas.cashier.history.data.DummyDataSource as HistoryDummyD
 import org.chevalierlabsas.cashier.history.data.DummyDataSourceImpl as HistoryDummyDataSourceImpl
 import org.chevalierlabsas.cashier.history.data.HistoryRepositoryImpl
 import org.chevalierlabsas.cashier.history.domain.repository.HistoryRepository
+import org.chevalierlabsas.cashier.core.preferences.AppPreferences
+import org.chevalierlabsas.cashier.home.data.datasource.UserLocalDataSource
+import org.chevalierlabsas.cashier.home.data.datasource.UserLocalDataSourceImpl
+import org.chevalierlabsas.cashier.home.data.datasource.UserRemoteDataSource
+import org.chevalierlabsas.cashier.home.data.datasource.UserRemoteDataSourceImpl
+import org.chevalierlabsas.cashier.home.data.datasource.ItemRemoteDataSource
+import org.chevalierlabsas.cashier.home.data.datasource.ItemRemoteDataSourceImpl
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.bind
 
 expect val platformModules: Module
 
 val sharedModules = module {
-    single<DummyDataSource> { DummyDataSourceImpl() }
-    single<HomeRepository> { HomeRepositoryImpl(get()) }
+    /* Define modules here */
+    /* From DataSourceImpl binded with interface -> RepositoryImpl binded with interface */
+    singleOf(::DummyDataSourceImpl).bind<DummyDataSource>()
+    singleOf(::UserLocalDataSourceImpl).bind<UserLocalDataSource>()
+    singleOf(::UserRemoteDataSourceImpl).bind<UserRemoteDataSource>()
+    singleOf(::ItemRemoteDataSourceImpl).bind<ItemRemoteDataSource>()
+    singleOf(::HomeRepositoryImpl).bind<HomeRepository>()
     
     single<HistoryDummyDataSource> { HistoryDummyDataSourceImpl() }
     single<HistoryRepository> { HistoryRepositoryImpl(get()) }
 
+    factory { AppPreferences(get()) }
     factory { HomeViewModel(get()) }
     factory { HistoryViewModel(get()) }
 }

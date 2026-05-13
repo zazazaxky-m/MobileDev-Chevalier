@@ -2,7 +2,9 @@ package org.chevalierlabsas.cashier.home.presentation
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.SharingStarted
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
@@ -14,8 +16,13 @@ class HomeViewModel(
     private val repository: HomeRepository
 ): ViewModel() {
     private var _items: List<Item> = emptyList()
+    // Mengambil username dari preferences
+    private val _userName = repository.getUser()
     private val _state = MutableStateFlow(HomeState())
-    val state = _state.asStateFlow()
+    val state = combine(_state, _userName) { state, userName ->
+        // Menyimpan username ke State.
+        state.copy(userName = userName)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeState())
 
     fun onEvent(event: HomeEvent) {
         when (event) {
@@ -27,16 +34,61 @@ class HomeViewModel(
             HomeEvent.OnSearchQuerySubmit -> TODO()
             HomeEvent.OnSaveTransaction -> saveTransaction()
             HomeEvent.OnLoadData -> loadData()
+            HomeEvent.CreateUserName -> createUser()
+            is HomeEvent.OnPostItem -> postItem(event.name, event.price)
+            is HomeEvent.OnUpdateItem -> updateItem(event.id, event.name, event.price)
         }
     }
 
     private fun loadData() {
+        if (state.value.userName.isBlank()) return
         viewModelScope.launch {
-            delay(2000) /* Simulate Network Call */
-            val data = repository.getItems()
-            _items = data
-            _state.update { it.copy(items = data) }
+            _state.update { it.copy(isLoading = true) }
+            repository.getItems(userId = state.value.userName)
+                .onSuccess { result ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            items = result
+                        )
+                    }
+                }
+                .onFailure { error ->
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = error.message
+                        )
+                    }
+                }
         }
+    }
+
+    private fun postItem(name: String, price: String) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+            repository.postItem(
+                Item(0, state.value.userName, name = name, price = price.toDouble())
+            )
+            loadData()
+            _state.update { it.copy(isLoading = false) }
+        }
+    }
+
+    private fun updateItem(id: Int, name: String, price: String) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+            repository.putItem(
+                Item(id, state.value.userName, name = name, price = price.toDouble())
+            )
+            loadData()
+            _state.update { it.copy(isLoading = false) }
+        }
+    }
+
+    private fun createUser() {
+        // Generate username unik.
+        viewModelScope.launch { repository.createUser() }
     }
 
     private fun removeItem(item: Item) {

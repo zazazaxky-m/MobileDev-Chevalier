@@ -62,7 +62,7 @@ fun SelectedItemChipPreview() {
         SelectedItemChip(
             item = Item(
                 id = 1,
-                userId = 1,
+                userId = "1",
                 name = "Telur 0.5 KG",
                 price = 12000.0
             ),
