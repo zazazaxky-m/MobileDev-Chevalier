@@ -9,11 +9,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.ExperimentalTime
 
 class HistoryRepositoryImpl(
     private val remoteDataSource: HistoryRemoteDataSource,
     private val localUserDataSource: UserLocalDataSource
 ) : HistoryRepository {
+    @OptIn(ExperimentalTime::class)
     override suspend fun getTransactions(): List<TransactionHistory> {
         return try {
             val userId = localUserDataSource.getUser().first().replace(" ", "_")

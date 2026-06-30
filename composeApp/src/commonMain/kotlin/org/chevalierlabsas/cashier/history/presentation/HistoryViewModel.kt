@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.datetime.*
+import kotlin.time.ExperimentalTime
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import org.chevalierlabsas.cashier.history.domain.TransactionHistory
@@ -19,10 +20,11 @@ class HistoryViewModel(
         loadTransactions()
     }
 
+    @OptIn(ExperimentalTime::class)
     private fun loadTransactions() {
         viewModelScope.launch {
             val allTransactions = repository.getTransactions()
-        val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
         val todayList = mutableListOf<TransactionHistory>()
         val weekList = mutableListOf<TransactionHistory>()
