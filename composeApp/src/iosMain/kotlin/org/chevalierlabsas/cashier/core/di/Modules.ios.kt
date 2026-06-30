@@ -10,6 +10,6 @@ import io.ktor.client.engine.darwin.Darwin
 
 actual val platformModules: Module
     get() = module {
-        single<HttpClient> { HttpClientFactory.create(Darwin.create()) }
+        single<HttpClient> { HttpClientFactory.create(Darwin.create(), get()) }
         single { createDataStore() }
     }

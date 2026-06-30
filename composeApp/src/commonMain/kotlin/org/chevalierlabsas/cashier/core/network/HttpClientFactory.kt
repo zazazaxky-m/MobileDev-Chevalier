@@ -11,10 +11,18 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.bearer
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.serialization.json.Json
+import org.chevalierlabsas.cashier.core.preferences.AppPreferences
 
 object HttpClientFactory {
-    fun create(engine: HttpClientEngine): HttpClient {
+    fun create(
+        engine: HttpClientEngine,
+        preferences: AppPreferences
+    ): HttpClient {
         return HttpClient(engine) {
             install(Logging) {
                 level = LogLevel.BODY
@@ -36,6 +44,21 @@ object HttpClientFactory {
             }
             defaultRequest {
                 contentType(ContentType.Application.Json)
+            }
+            install(Auth) {
+                bearer {
+                    loadTokens {
+                        val accessToken = preferences.getToken().firstOrNull()
+                        if (accessToken.isNullOrBlank()) {
+                            null
+                        } else {
+                            BearerTokens(
+                                accessToken = accessToken,
+                                refreshToken = ""
+                            )
+                        }
+                    }
+                }
             }
         }
     }

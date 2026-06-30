@@ -13,4 +13,12 @@ class UserLocalDataSourceImpl(
     override fun getUser(): Flow<String> {
         return pref.getUserKey()
     }
+
+    override suspend fun setToken(token: String) {
+        pref.setToken(token)
+    }
+
+    override fun getToken(): Flow<String> {
+        return pref.getToken()
+    }
 }

@@ -8,4 +8,8 @@ interface UserLocalDataSource {
 
     fun getUser(): Flow<String>
 
+    suspend fun setToken(token: String)
+
+    fun getToken(): Flow<String>
+
 }

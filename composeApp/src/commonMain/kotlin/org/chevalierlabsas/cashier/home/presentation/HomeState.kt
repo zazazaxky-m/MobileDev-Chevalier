@@ -16,5 +16,7 @@ data class HomeState(
     val itemId: Int = 0,
     val itemName: String = "",
     val itemPrice: String = "",
-    val isEditing: Boolean = false
+    val isEditing: Boolean = false,
+    val registrationSheetOpen: Boolean = false,
+    val registrationName: String = ""
 )

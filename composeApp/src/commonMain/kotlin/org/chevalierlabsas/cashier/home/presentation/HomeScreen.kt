@@ -60,6 +60,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.CircularProgressIndicator
 import org.chevalierlabsas.cashier.home.presentation.components.ItemFormBottomSheet
+import org.chevalierlabsas.cashier.home.presentation.components.UserRegistrationBottomSheet
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -89,6 +90,15 @@ fun HomeScreen(
         )
     }
 
+    if (state.registrationSheetOpen) {
+        UserRegistrationBottomSheet(
+            name = state.registrationName,
+            onNameChange = { onEvent(HomeEvent.OnRegistrationNameChanged(it)) },
+            onSave = { onEvent(HomeEvent.CreateUserName(state.registrationName)) },
+            onDismissRequest = { /* Prevent dismiss, wait for save */ }
+        )
+    }
+
     LaunchedEffect(state.errorMessage) {
         if (!state.errorMessage.isNullOrEmpty()) {
             snackbarHostState.showSnackbar(
@@ -102,8 +112,8 @@ fun HomeScreen(
     LaunchedEffect(state.userName) {
         delay(500) // Beri waktu Preferences untuk load value.
         if (state.userName.isBlank()) {
-            // Jika kosong maka generate.
-            onEvent(HomeEvent.CreateUserName)
+            // Jika kosong maka tampilkan form registrasi.
+            onEvent(HomeEvent.ShowRegistrationSheet)
         } else {
             // Jika tidak, maka tampilkan di Snackbar
             scope.launch {

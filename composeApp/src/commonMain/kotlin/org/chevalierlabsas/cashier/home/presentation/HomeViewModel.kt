@@ -34,7 +34,9 @@ class HomeViewModel(
             HomeEvent.OnSearchQuerySubmit -> TODO()
             HomeEvent.OnSaveTransaction -> saveTransaction()
             HomeEvent.OnLoadData -> loadData()
-            HomeEvent.CreateUserName -> createUser()
+            HomeEvent.ShowRegistrationSheet -> showRegistrationSheet()
+            is HomeEvent.CreateUserName -> createUser(event.name)
+            is HomeEvent.OnRegistrationNameChanged -> changeRegistrationName(event.name)
             is HomeEvent.OnSetItem -> setItem(event.itemId, event.itemName, event.itemPrice)
             HomeEvent.ShowItemSheet -> showItemSheet()
             HomeEvent.DismissItemSheet -> dismissItemSheet()
@@ -138,9 +140,26 @@ class HomeViewModel(
         }
     }
 
-    private fun createUser() {
-        // Generate username unik.
-        viewModelScope.launch { repository.createUser() }
+    private fun showRegistrationSheet() {
+        _state.update { it.copy(registrationSheetOpen = true) }
+    }
+
+    private fun createUser(name: String) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+            repository.saveUser(name)
+                .onSuccess {
+                    _state.update { it.copy(isLoading = false, registrationSheetOpen = false) }
+                    loadData()
+                }
+                .onFailure { error ->
+                    _state.update { it.copy(isLoading = false, errorMessage = error.message) }
+                }
+        }
+    }
+
+    private fun changeRegistrationName(name: String) {
+        _state.update { it.copy(registrationName = name) }
     }
 
     private fun removeItem(item: Item) {

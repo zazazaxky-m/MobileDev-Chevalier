@@ -11,6 +11,6 @@ import io.ktor.client.engine.okhttp.OkHttp
 
 actual val platformModules: Module
     get() = module {
-        single<HttpClient> { HttpClientFactory.create(OkHttp.create()) }
+        single<HttpClient> { HttpClientFactory.create(OkHttp.create(), get()) }
         single { createDataStore(androidContext()) }
     }
