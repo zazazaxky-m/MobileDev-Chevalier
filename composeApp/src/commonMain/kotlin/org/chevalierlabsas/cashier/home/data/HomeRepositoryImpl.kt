@@ -52,12 +52,17 @@ class HomeRepositoryImpl(
     }
 
     override suspend fun deleteItem(id: Int): Result<Boolean> {
-        TODO("Not yet implemented")
+        val result = itemRemoteDataSource.deleteItem(id)
+        return if (result.isSuccess) {
+            Result.success(true)
+        } else {
+            Result.failure(result.exceptionOrNull() ?: Exception("Unknown error."))
+        }
     }
 
     override suspend fun putItem(item: Item): Result<Boolean> {
         val request = PostItemRequest(
-            price = item.price,
+            price = item.price.toInt().toDouble(),
             name = item.name,
             userId = item.userId.replace(" ", "_")
         )

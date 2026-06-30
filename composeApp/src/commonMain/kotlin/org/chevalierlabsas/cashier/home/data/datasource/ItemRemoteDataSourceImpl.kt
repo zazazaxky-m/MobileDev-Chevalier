@@ -5,6 +5,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.put
+import io.ktor.client.request.delete
 import io.ktor.client.request.setBody
 import org.chevalierlabsas.cashier.core.network.BASE_URL
 import org.chevalierlabsas.cashier.core.network.V1
@@ -26,7 +27,7 @@ class ItemRemoteDataSourceImpl(
         id: Int,
         request: PostItemRequest
     ): Result<Boolean> {
-        val response = client.put("$BASE_URL/$V1/item/$id") {
+        val response = client.post("$BASE_URL/$V1/item/$id") {
             setBody(request)
         }
         return when (response.status.value) {
@@ -46,6 +47,10 @@ class ItemRemoteDataSourceImpl(
     }
 
     override suspend fun deleteItem(id: Int): Result<Boolean> {
-        TODO("Not yet implemented")
+        val response = client.delete("$BASE_URL/$V1/item/$id")
+        return when (response.status.value) {
+            200 -> Result.success(true)
+            else -> Result.failure(Exception(response.status.description))
+        }
     }
 }

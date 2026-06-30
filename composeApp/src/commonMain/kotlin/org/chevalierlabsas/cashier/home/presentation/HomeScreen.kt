@@ -53,6 +53,12 @@ import androidx.compose.runtime.LaunchedEffect
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.background
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.CircularProgressIndicator
 import org.chevalierlabsas.cashier.home.presentation.components.ItemFormBottomSheet
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -66,27 +72,19 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     // Snackbar untuk melihatkan hasil ID unik.
     val snackbarHostState = remember { SnackbarHostState() }
-    var isAddItemSheetOpen by remember { mutableStateOf(false) }
-    var itemToEdit by remember { mutableStateOf<Item?>(null) }
-
-    if (isAddItemSheetOpen || itemToEdit != null) {
-        val isEditMode = itemToEdit != null
+    if (state.itemSheetOpen) {
         ItemFormBottomSheet(
-            title = if (isEditMode) "Edit Barang" else "Tambah Barang",
-            initialName = itemToEdit?.name ?: "",
-            initialPrice = if (isEditMode) itemToEdit?.price?.toInt()?.toString() ?: "" else "",
-            onDismissRequest = { 
-                isAddItemSheetOpen = false 
-                itemToEdit = null
+            itemName = state.itemName,
+            itemPrice = state.itemPrice,
+            isEditing = state.isEditing,
+            onDismissRequest = { onEvent(HomeEvent.DismissItemSheet) },
+            onItemNameChange = { onEvent(HomeEvent.OnItemNameChanged(it)) },
+            onItemPriceChange = { onEvent(HomeEvent.OnItemPriceChanged(it)) },
+            onSave = {
+                onEvent(HomeEvent.OnPostItem)
             },
-            onSave = { name, price ->
-                if (isEditMode) {
-                    onEvent(HomeEvent.OnUpdateItem(itemToEdit!!.id, name, price))
-                } else {
-                    onEvent(HomeEvent.OnPostItem(name, price))
-                }
-                isAddItemSheetOpen = false
-                itemToEdit = null
+            onDelete = {
+                onEvent(HomeEvent.OnDelete(state.itemId))
             }
         )
     }
@@ -120,28 +118,29 @@ fun HomeScreen(
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = stringResource(Res.string.app_name))
-                },
-                actions = {
-                    IconButton(
-                        onClick = { onNavigate(HistoryDestination) }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.History,
-                            contentDescription = stringResource(Res.string.history_topbar)
-                        )
+    Box {
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(text = stringResource(Res.string.app_name))
+                    },
+                    actions = {
+                        IconButton(
+                            onClick = { onNavigate(HistoryDestination) }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.History,
+                                contentDescription = stringResource(Res.string.history_topbar)
+                            )
+                        }
                     }
-                }
-            )
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { isAddItemSheetOpen = true },
+                )
+            },
+            floatingActionButton = {
+                ExtendedFloatingActionButton(
+                    onClick = { onEvent(HomeEvent.ShowItemSheet) },
                 containerColor = MaterialTheme.colorScheme.tertiary,
                 text = { Text(text = stringResource(Res.string.add_item_fab_label)) },
                 icon = { Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.add_item_fab_label)) }
@@ -235,12 +234,26 @@ fun HomeScreen(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
                         name = item.name,
                         price = item.price,
-                        onEdit = { itemToEdit = item },
+                        onEdit = { 
+                            onEvent(HomeEvent.OnSetItem(itemId = item.id, itemName = item.name, itemPrice = item.price.toInt().toString()))
+                        },
                         onAdd = {
                             onEvent(HomeEvent.OnAddItem(item))
                         }
                     )
                 }
+            }
+        } // closes LazyColumn
+        } // closes Scaffold content lambda
+        
+        if (state.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
         }
     }
