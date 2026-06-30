@@ -7,7 +7,7 @@ interface HomeRepository {
     suspend fun postItem(item: Item): Result<Boolean>
     suspend fun deleteItem(id: Int): Result<Boolean>
     suspend fun putItem(item: Item): Result<Boolean>
-    suspend fun postTransaction(userId: String, total: Double, items: Int): Result<Boolean>
+    suspend fun postTransaction(total: Int, userId: String, items: Int): Result<Boolean>
     suspend fun createUser()
     suspend fun saveUser(user: String): Result<Boolean>
     fun getUser(): kotlinx.coroutines.flow.Flow<String>

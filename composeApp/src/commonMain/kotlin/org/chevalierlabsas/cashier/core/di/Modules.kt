@@ -22,6 +22,8 @@ import org.chevalierlabsas.cashier.home.data.datasource.UserRemoteDataSource
 import org.chevalierlabsas.cashier.home.data.datasource.UserRemoteDataSourceImpl
 import org.chevalierlabsas.cashier.home.data.datasource.ItemRemoteDataSource
 import org.chevalierlabsas.cashier.home.data.datasource.ItemRemoteDataSourceImpl
+import org.chevalierlabsas.cashier.home.data.datasource.TransactionRemoteDataSource
+import org.chevalierlabsas.cashier.home.data.datasource.TransactionRemoteDataSourceImpl
 import org.chevalierlabsas.cashier.history.data.datasource.HistoryRemoteDataSource
 import org.chevalierlabsas.cashier.history.data.datasource.HistoryRemoteDataSourceImpl
 import org.koin.core.module.dsl.singleOf
@@ -36,6 +38,7 @@ val sharedModules = module {
     singleOf(::UserLocalDataSourceImpl).bind<UserLocalDataSource>()
     singleOf(::UserRemoteDataSourceImpl).bind<UserRemoteDataSource>()
     singleOf(::ItemRemoteDataSourceImpl).bind<ItemRemoteDataSource>()
+    singleOf(::TransactionRemoteDataSourceImpl).bind<TransactionRemoteDataSource>()
     singleOf(::HistoryRemoteDataSourceImpl).bind<HistoryRemoteDataSource>()
     singleOf(::HomeRepositoryImpl).bind<HomeRepository>()
     

@@ -11,15 +11,15 @@ import org.chevalierlabsas.cashier.home.data.dto.CreateUserRequest
 import org.chevalierlabsas.cashier.home.data.dto.PostItemRequest
 import kotlinx.coroutines.flow.Flow
 
-import org.chevalierlabsas.cashier.history.data.datasource.HistoryRemoteDataSource
-import org.chevalierlabsas.cashier.history.data.dto.PostTransactionRequest
+import org.chevalierlabsas.cashier.home.data.datasource.TransactionRemoteDataSource
+import org.chevalierlabsas.cashier.home.data.dto.CreateTransactionRequest
 
 class HomeRepositoryImpl(
     private val dataSource: DummyDataSource,
     private val userLocalDataSource: UserLocalDataSource,
     private val userRemoteDataSource: UserRemoteDataSource,
     private val itemRemoteDataSource: ItemRemoteDataSource,
-    private val historyRemoteDataSource: HistoryRemoteDataSource
+    private val transactionDataSource: TransactionRemoteDataSource
 ): HomeRepository {
     
     override suspend fun getItems(userId: String): Result<List<Item>> {
@@ -69,13 +69,17 @@ class HomeRepositoryImpl(
         }
     }
 
-    override suspend fun postTransaction(userId: String, total: Double, items: Int): Result<Boolean> {
-        val request = PostTransactionRequest(
-            userId = userId.replace(" ", "_"),
-            total = total,
-            items = items
-        )
-        return historyRemoteDataSource.postTransaction(request)
+    override suspend fun postTransaction(total: Int, userId: String, items: Int): Result<Boolean> {
+        val request = CreateTransactionRequest(total, userId, items)
+        val result = transactionDataSource.createTransaction(request)
+        
+        return when (result) {
+            201 -> Result.success(true)
+            400 -> Result.failure(Exception("Bad Request."))
+            401 -> Result.failure(Exception("Unauthorized."))
+            500 -> Result.failure(Exception("Server Error."))
+            else -> Result.failure(Exception("Transaction failed."))
+        }
     }
 
     override suspend fun createUser() {

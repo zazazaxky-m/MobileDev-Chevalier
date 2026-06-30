@@ -1,23 +1,16 @@
-package org.chevalierlabsas.cashier.history.data.dto
+package org.chevalierlabsas.cashier.home.data.dto
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class PostTransactionRequest(
-    val userId: String,
-    val total: Double,
-    val items: Int
-)
-
-@Serializable
-data class HistoryResponse(
+data class GetHistoryResponse(
     val status: Int,
     val message: String,
-    val histories: List<HistoryDto> = emptyList()
+    val histories: List<HistoryItem> = emptyList()
 )
 
 @Serializable
-data class HistoryDto(
+data class HistoryItem(
     val id: Int? = null,
     val total: Double,
     val items: Int,
