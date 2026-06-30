@@ -101,7 +101,32 @@ class HomeViewModel(
     }
 
     private fun saveTransaction() {
-        TODO("Save Data to API.")
+        val userId = state.value.userName
+        val total = state.value.totalPrice
+        val items = state.value.selectedItems.size
+
+        if (userId.isBlank() || items == 0) return
+
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+            val result = repository.postTransaction(userId, total, items)
+            if (result.isSuccess) {
+                _state.update {
+                    it.copy(
+                        selectedItems = emptyList(),
+                        totalPrice = 0.0,
+                        isLoading = false
+                    )
+                }
+            } else {
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = result.exceptionOrNull()?.message
+                    )
+                }
+            }
+        }
     }
 
     private fun addItem(item: Item) {
